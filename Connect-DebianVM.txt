@@ -1,0 +1,23 @@
+param(
+  [string]$VmHost = "10.192.58.21",
+  [string]$User   = "root",
+  [int]$Port      = 22
+)
+
+$sshDir = Join-Path $env:USERPROFILE ".ssh"
+$key    = Join-Path $sshDir "id_ed25519"
+$keyPub = "$key.pub"
+
+if (-not (Test-Path $key)) {
+  if (-not (Test-Path $sshDir)) { New-Item -ItemType Directory -Path $sshDir | Out-Null }
+  & ssh-keygen -t ed25519 -f $key -N "" | Out-Null
+  Write-Host "✅ Clé générée : $key"
+}
+
+Write-Host "🔐 Installation (ou mise à jour) de la clé publique sur $User@$VmHost ..."
+type $keyPub | ssh -p $Port "$User@$VmHost" 'umask 077; mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys && cat >> ~/.ssh/authorized_keys'
+
+Write-Host "🚀 Connexion à $User@$VmHost ..."
+$sshTarget = $User + '@' + $VmHost
+$sshArgs = @('-i', $key, '-p', $Port, $sshTarget)
+& ssh $sshArgs
