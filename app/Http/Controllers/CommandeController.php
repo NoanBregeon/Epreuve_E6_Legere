@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\CommandeConfirmee;
 use App\Models\LigneTicket;
 use App\Models\Ticket;
 use App\Services\PanierService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class CommandeController extends Controller
 {
@@ -25,8 +27,17 @@ class CommandeController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
+        $clientId = null;
+        if ($user) {
+            $client = \App\Models\Client::where('email', $user->email)->first();
+            if ($client) {
+                $clientId = $client->id;
+            }
+        }
+
         // On récupère les commandes "Drive" (table commandes)
-        $commandes = \App\Models\Commande::where('client_id', Auth::id())
+        $commandes = \App\Models\Commande::where('client_id', $clientId)
             ->orderBy('created_at', 'desc')
             ->with('lignes.produit')
             ->paginate(10);
@@ -47,6 +58,7 @@ class CommandeController extends Controller
 
         $panier = $this->panierService->getContenu();
         $totalTTC = $this->panierService->getTotalTTC();
+        $remises = $this->panierService->calculerRemises();
 
         // Génération des créneaux (exemple simple : 3 prochains jours, 9h-19h)
         $creneaux = [];
@@ -71,7 +83,7 @@ class CommandeController extends Controller
             }
         }
 
-        return view('commande.create', compact('panier', 'totalTTC', 'creneaux'));
+        return view('commande.create', compact('panier', 'totalTTC', 'creneaux', 'remises'));
     }
 
     /**
@@ -103,13 +115,22 @@ class CommandeController extends Controller
 
         try {
             $user = Auth::user();
+            $clientId = null;
+            if ($user) {
+                $client = \App\Models\Client::where('email', $user->email)->first();
+                if ($client) {
+                    $clientId = $client->id;
+                }
+            }
+
             $totalHT = $this->panierService->getTotalHT();
             $totalTVA = $this->panierService->getTotalTVA();
             $totalTTC = $this->panierService->getTotalTTC();
+            $remises = $this->panierService->calculerRemises();
 
             // 1. Créer la Commande (Table Drive)
             $commande = \App\Models\Commande::create([
-                'client_id' => $user ? $user->id : null, // Si auth
+                'client_id' => $clientId, // ID du client trouvé via l'email
                 'numero_commande' => 'CMD-'.strtoupper(uniqid()),
                 'statut' => 'A_PREPARER',
                 'creneau_retrait' => $request->creneau_retrait,
@@ -122,7 +143,7 @@ class CommandeController extends Controller
             // On garde le ticket pour la compatibilité avec l'existant
             $ticket = Ticket::create([
                 'user_id' => $user ? $user->id : null,
-                'client_id' => null,
+                'client_id' => $clientId,
                 'total_ht' => $totalHT,
                 'total_tva' => $totalTVA,
                 'total_ttc' => $totalTTC,
@@ -132,6 +153,12 @@ class CommandeController extends Controller
 
             // 3. Créer les lignes
             foreach ($this->panierService->getContenu() as $produitId => $item) {
+
+                $remiseLigne = 0;
+                if (isset($remises['details'][$produitId])) {
+                    $remiseLigne = $remises['details'][$produitId]['remise'];
+                }
+
                 // Ligne Commande (Drive)
                 \App\Models\LigneCommande::create([
                     'commande_id' => $commande->id,
@@ -142,6 +169,10 @@ class CommandeController extends Controller
                     'statut_ligne' => 'A_VALIDER',
                 ]);
 
+                // Calcul des totaux pour la ligne ticket
+                $ligneTotalHT = $item['prix_ht'] * $item['quantite'];
+                $ligneTotalTTC = ($ligneTotalHT * (1 + ($item['tva'] / 100))) - $remiseLigne;
+
                 // Ligne Ticket (Compta)
                 LigneTicket::create([
                     'ticket_id' => $ticket->id,
@@ -149,6 +180,8 @@ class CommandeController extends Controller
                     'qte' => $item['quantite'],
                     'prix_unitaire_ht' => $item['prix_ht'],
                     'tva' => $item['tva'],
+                    'total_ht' => $ligneTotalHT,
+                    'total_ttc' => $ligneTotalTTC,
                 ]);
 
                 // Décrémenter le stock
@@ -163,6 +196,16 @@ class CommandeController extends Controller
 
             // Vider le panier
             $this->panierService->vider();
+
+            // Envoyer l'email de confirmation (dans un try/catch pour ne pas bloquer la commande si l'envoi échoue)
+            try {
+                if ($user && $user->email) {
+                    Mail::to($user->email)->send(new CommandeConfirmee($commande));
+                }
+            } catch (\Exception $e) {
+                // On log l'erreur mais on ne bloque pas la commande
+                \Illuminate\Support\Facades\Log::error('Erreur envoi email commande : '.$e->getMessage());
+            }
 
             $message = 'Commande validée avec succès ! Votre numéro de commande est '.$commande->numero_commande;
             if ($request->moyen_paiement === 'CB') {

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreProduitRequest;
 use App\Models\Produit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class ProduitsController extends Controller
 {
@@ -14,7 +15,7 @@ class ProduitsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Produit::where('actif', true);
+        $query = Produit::where('actif', true)->with('promotions');
 
         // Recherche
         if ($request->filled('search')) {
@@ -46,8 +47,10 @@ class ProduitsController extends Controller
 
         $produits = $query->paginate(12)->withQueryString();
 
-        // Récupérer les catégories pour le filtre
-        $categories = Produit::where('actif', true)->distinct()->pluck('categorie')->filter();
+        // Récupérer les catégories pour le filtre (mis en cache 1h)
+        $categories = Cache::remember('categories_list', 3600, function () {
+            return Produit::where('actif', true)->distinct()->pluck('categorie')->filter();
+        });
 
         return view('produits.index', compact('produits', 'categories'));
     }
@@ -60,6 +63,21 @@ class ProduitsController extends Controller
         $produit = Produit::where('actif', true)->findOrFail($id);
 
         return view('produits.show', compact('produit'));
+    }
+
+    /**
+     * Afficher les produits en promotion
+     *
+     * @return \Illuminate\View\View
+     */
+    public function promotions()
+    {
+        $produits = Produit::where('actif', true)
+            ->has('promotions')
+            ->with('promotions')
+            ->paginate(12);
+
+        return view('promotions.index', compact('produits'));
     }
 
     // --- Méthodes Admin ---

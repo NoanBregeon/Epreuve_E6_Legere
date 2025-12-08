@@ -3,11 +3,15 @@
 namespace App\Services;
 
 use App\Models\Produit;
+use App\Models\Promotion;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Collection;
 
 class PanierService
 {
     private const SESSION_KEY = 'panier';
+    private ?Collection $promotionsCache = null;
 
     /**
      * Obtenir le contenu du panier
@@ -17,6 +21,89 @@ class PanierService
     public function getContenu(): array
     {
         return Session::get(self::SESSION_KEY, []);
+    }
+
+    /**
+     * Calculer les remises applicables
+     *
+     * @return array<string, float> ['total_remise' => float, 'details' => array]
+     */
+    public function calculerRemises(): array
+    {
+        $panier = $this->getContenu();
+
+        if ($this->promotionsCache === null) {
+            // On cache la liste des promotions pendant 1 heure (3600 secondes)
+            // pour éviter de requêter la BDD à chaque calcul de panier
+            $this->promotionsCache = Cache::remember('promotions_all', 3600, function () {
+                return Promotion::all();
+            });
+        }
+        $promotions = $this->promotionsCache;
+
+        $totalRemise = 0;
+        $details = [];
+
+        foreach ($promotions as $promo) {
+            // Si la promo est liée à un produit spécifique
+            if ($promo->produit_id && isset($panier[$promo->produit_id])) {
+                $item = $panier[$promo->produit_id];
+
+                // Vérifier la quantité minimale
+                if ($item['quantite'] >= $promo->min_quantite) {
+                    $remise = 0;
+
+                    switch ($promo->type_promo) {
+                        case 'pourcentage':
+                            // Remise en % sur le total de la ligne
+                            $montantLigne = $item['prix_ttc'] * $item['quantite'];
+                            $remise = $montantLigne * ($promo->valeur_promo / 100);
+                            break;
+
+                        case 'montant':
+                            // Remise fixe par article (ou une fois ? Disons par article pour simplifier)
+                            $remise = $promo->valeur_promo * $item['quantite'];
+                            break;
+
+                        case 'offert':
+                            // Ex: 2 achetés = 1 offert (donc pour 3, on en paie 2)
+                            // min_quantite = 3. valeur_promo = 1 (nombre offert)
+                            // Combien de lots complets ?
+                            $lots = floor($item['quantite'] / $promo->min_quantite);
+                            $nbOfferts = $lots * $promo->valeur_promo;
+                            $remise = $nbOfferts * $item['prix_ttc'];
+                            break;
+                    }
+
+                    if ($remise > 0) {
+                        $totalRemise += $remise;
+                        // On indexe par ID produit pour l'affichage facile dans la vue
+                        $details[$promo->produit_id] = [
+                            'libelle_promo' => $promo->titre,
+                            'remise' => $remise,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return [
+            'total_remise' => $totalRemise,
+            'details' => $details,
+        ];
+    }
+
+    /**
+     * Obtenir le total TTC (avant remises)
+     */
+    public function getTotalTTCSansRemise(): float
+    {
+        $total = 0;
+        foreach ($this->getContenu() as $item) {
+            $total += $item['prix_ttc'] * $item['quantite'];
+        }
+
+        return $total;
     }
 
     /**
@@ -140,11 +227,21 @@ class PanierService
     }
 
     /**
-     * Calculer le total TTC du panier
+     * Calculer le total TTC du panier (AVEC REMISES)
      */
     public function getTotalTTC(): float
     {
-        return round($this->getTotalHT() + $this->getTotalTVA(), 2);
+        // Ancien calcul : return round($this->getTotalHT() + $this->getTotalTVA(), 2);
+
+        // Nouveau calcul avec remises :
+        $totalSansRemise = 0;
+        foreach ($this->getContenu() as $item) {
+            $totalSansRemise += $item['prix_ttc'] * $item['quantite'];
+        }
+
+        $remises = $this->calculerRemises();
+
+        return max(0, round($totalSansRemise - $remises['total_remise'], 2));
     }
 
     /**

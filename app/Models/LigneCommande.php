@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property numeric $prix_unitaire_ht
  * @property string $statut_ligne
  * @property string|null $note
- * @property-read \App\Models\Commande|null $commande
- * @property-read \App\Models\Produit|null $produit
+ * @property-read \App\Models\Commande $commande
+ * @property-read \App\Models\Produit $produit
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LigneCommande newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LigneCommande newQuery()

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read float $prix_ttc
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LigneTicket> $lignes
  * @property-read int|null $lignes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Promotion> $promotions
+ * @property-read int|null $promotions_count
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produit newQuery()
@@ -42,6 +45,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Produit extends Model
 {
+    use HasFactory;
+
     protected $table = 'produits';
 
     protected $fillable = [
@@ -69,6 +74,14 @@ class Produit extends Model
     public function lignes(): HasMany
     {
         return $this->hasMany(LigneTicket::class, 'produit_id');
+    }
+
+    /**
+     * @return HasMany<Promotion, $this>
+     */
+    public function promotions(): HasMany
+    {
+        return $this->hasMany(Promotion::class, 'produit_id');
     }
 
     public function getPrixTtcAttribute(): float

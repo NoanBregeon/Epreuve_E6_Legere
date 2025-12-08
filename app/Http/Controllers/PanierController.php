@@ -25,7 +25,10 @@ class PanierController extends Controller
         $totalTTC = $this->panierService->getTotalTTC();
         $nombreArticles = $this->panierService->getNombreArticles();
 
-        return view('panier.index', compact('panier', 'totalHT', 'totalTVA', 'totalTTC', 'nombreArticles'));
+        // Récupérer les détails des remises pour l'affichage
+        $remises = $this->panierService->calculerRemises();
+
+        return view('panier.index', compact('panier', 'totalHT', 'totalTVA', 'totalTTC', 'nombreArticles', 'remises'));
     }
 
     /**
@@ -36,7 +39,7 @@ class PanierController extends Controller
         $quantite = $request->input('quantite', 1);
 
         if ($this->panierService->ajouter($id, $quantite)) {
-            return redirect()->route('panier.index')
+            return redirect()->back()
                 ->with('success', 'Produit ajouté au panier avec succès !');
         }
 

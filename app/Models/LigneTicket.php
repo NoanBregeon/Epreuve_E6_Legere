@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property numeric $total_ttc
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Produit|null $produit
- * @property-read \App\Models\Ticket|null $ticket
+ * @property-read \App\Models\Produit $produit
+ * @property-read \App\Models\Ticket $ticket
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LigneTicket newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LigneTicket newQuery()

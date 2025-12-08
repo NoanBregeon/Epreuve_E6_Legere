@@ -37,16 +37,39 @@
 
                         <div class="mt-4 sm:mt-0 flex items-center justify-between sm:justify-end space-x-6">
                             <!-- Quantité -->
-                            <form action="{{ route('panier.update', $id) }}" method="POST" class="flex items-center">
+                            <form action="{{ route('panier.update', $id) }}" method="POST" class="flex items-center" x-data="{ qty: {{ $item['quantite'] }} }">
                                 @csrf
                                 @method('PATCH')
-                                <label for="quantite-{{ $id }}" class="sr-only">Quantité</label>
-                                <input type="number" id="quantite-{{ $id }}" name="quantite" value="{{ $item['quantite'] }}" min="1" class="w-20 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border" onchange="this.form.submit()">
+                                <div class="flex items-center border border-gray-300 rounded-md">
+                                    <button type="button" @click="if(qty > 1) { qty--; $nextTick(() => $el.closest('form').submit()) }" class="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-l-md focus:outline-none font-bold">-</button>
+                                    <input type="number" name="quantite" x-model="qty" min="1" class="w-12 border-0 text-center focus:ring-0 p-1 text-sm appearance-none" style="-moz-appearance: textfield;" onchange="this.form.submit()">
+                                    <button type="button" @click="qty++; $nextTick(() => $el.closest('form').submit())" class="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-r-md focus:outline-none font-bold">+</button>
+                                </div>
                             </form>
 
                             <!-- Total Ligne -->
-                            <div class="text-lg font-bold text-gray-900 w-24 text-right">
-                                {{ number_format($item['prix_ttc'] * $item['quantite'], 2, ',', ' ') }} €
+                            <div class="text-right w-32">
+                                @if(isset($remises['details'][$id]))
+                                    @php
+                                        $originalTotal = $item['prix_ttc'] * $item['quantite'];
+                                        $discountedTotal = $originalTotal - $remises['details'][$id]['remise'];
+                                    @endphp
+                                    <div class="text-sm text-gray-500 line-through">
+                                        {{ number_format($originalTotal, 2, ',', ' ') }} €
+                                    </div>
+                                    <div class="text-lg font-bold text-red-600">
+                                        {{ number_format($discountedTotal, 2, ',', ' ') }} €
+                                    </div>
+                                    <div class="text-xs text-green-600 font-medium">
+                                        -{{ number_format($remises['details'][$id]['remise'], 2, ',', ' ') }} €
+                                        <br>
+                                        <span class="text-xs text-gray-500">{{ $remises['details'][$id]['libelle_promo'] }}</span>
+                                    </div>
+                                @else
+                                    <div class="text-lg font-bold text-gray-900">
+                                        {{ number_format($item['prix_ttc'] * $item['quantite'], 2, ',', ' ') }} €
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Supprimer -->
@@ -67,7 +90,7 @@
 
                 <div class="bg-gray-50 px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-center">
                     <div class="text-base font-medium text-gray-900 mb-4 sm:mb-0">
-                        <a href="{{ route('produits.index') }}" class="text-indigo-600 hover:text-indigo-900 flex items-center">
+                        <a href="{{ route('produits.index') }}" class="text-cyan-600 hover:text-cyan-900 flex items-center">
                             <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                             </svg>
@@ -76,10 +99,20 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                        <div class="text-2xl font-bold text-gray-900">
-                            Total: {{ number_format($totalTTC, 2, ',', ' ') }} €
+                        <div class="flex flex-col items-end">
+                            @if(isset($remises['total_remise']) && $remises['total_remise'] > 0)
+                                <div class="text-sm text-gray-500">
+                                    Total avant remise: <span class="line-through">{{ number_format($totalTTC + $remises['total_remise'], 2, ',', ' ') }} €</span>
+                                </div>
+                                <div class="text-sm text-green-600 font-medium mb-1">
+                                    Économie totale: -{{ number_format($remises['total_remise'], 2, ',', ' ') }} €
+                                </div>
+                            @endif
+                            <div class="text-2xl font-bold text-gray-900">
+                                Total: {{ number_format($totalTTC, 2, ',', ' ') }} €
+                            </div>
                         </div>
-                        <a href="{{ route('commande.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <a href="{{ route('commande.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                             Valider mon panier
                         </a>
                     </div>
@@ -93,7 +126,7 @@
                 <h3 class="mt-2 text-sm font-medium text-gray-900">Votre panier est vide</h3>
                 <p class="mt-1 text-sm text-gray-500">Commencez par ajouter des produits.</p>
                 <div class="mt-6">
-                    <a href="{{ route('produits.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <a href="{{ route('produits.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
                         Voir les produits
                     </a>
                 </div>

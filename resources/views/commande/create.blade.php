@@ -138,7 +138,7 @@
                     </div>
                     <div class="px-4 py-5 sm:p-6">
                         <ul class="divide-y divide-gray-200">
-                            @foreach($panier as $item)
+                            @foreach($panier as $id => $item)
                             <li class="py-4 flex">
                                 <div class="flex-shrink-0 h-16 w-16 border border-gray-200 rounded-md overflow-hidden">
                                     @if(isset($item['image']) && $item['image'])
@@ -153,11 +153,21 @@
                                     <div>
                                         <div class="flex justify-between text-base font-medium text-gray-900">
                                             <h3>{{ $item['libelle'] }}</h3>
-                                            <p class="ml-4">{{ number_format($item['prix_ht'] * (1 + $item['tva']/100) * $item['quantite'], 2, ',', ' ') }} €</p>
+                                            @if(isset($remises['details'][$id]))
+                                                <div class="text-right">
+                                                    <p class="text-xs text-gray-500 line-through">{{ number_format($item['prix_ttc'] * $item['quantite'], 2, ',', ' ') }} €</p>
+                                                    <p class="text-red-600">{{ number_format(($item['prix_ttc'] * $item['quantite']) - $remises['details'][$id]['remise'], 2, ',', ' ') }} €</p>
+                                                </div>
+                                            @else
+                                                <p class="ml-4">{{ number_format($item['prix_ttc'] * $item['quantite'], 2, ',', ' ') }} €</p>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="flex-1 flex items-end justify-between text-sm">
                                         <p class="text-gray-500">Qté {{ $item['quantite'] }}</p>
+                                        @if(isset($remises['details'][$id]))
+                                            <p class="text-xs text-green-600">{{ $remises['details'][$id]['libelle_promo'] }}</p>
+                                        @endif
                                     </div>
                                 </div>
                             </li>
@@ -167,8 +177,14 @@
                         <div class="border-t border-gray-200 pt-4 mt-4">
                             <div class="flex justify-between text-base font-medium text-gray-900 mb-2">
                                 <p>Sous-total</p>
-                                <p>{{ number_format($totalTTC, 2, ',', ' ') }} €</p>
+                                <p>{{ number_format($totalTTC + ($remises['total_remise'] ?? 0), 2, ',', ' ') }} €</p>
                             </div>
+                            @if(isset($remises['total_remise']) && $remises['total_remise'] > 0)
+                                <div class="flex justify-between text-base font-medium text-green-600 mb-2">
+                                    <p>Remises</p>
+                                    <p>-{{ number_format($remises['total_remise'], 2, ',', ' ') }} €</p>
+                                </div>
+                            @endif
                             <div class="flex justify-between text-sm text-gray-500 mb-4">
                                 <p>TVA incluse</p>
                                 <p>~ {{ number_format($totalTTC - ($totalTTC / 1.055), 2, ',', ' ') }} €</p>

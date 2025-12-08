@@ -5,10 +5,15 @@ use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\PanierController;
 use App\Http\Controllers\ProduitsController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Produit;
+use App\Models\Promotion;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $produitsCount = Produit::count();
+    $promotions = Promotion::all();
+
+    return view('welcome', compact('produitsCount', 'promotions'));
 })->name('accueil');
 
 Route::get('/dashboard', function () {
@@ -25,6 +30,7 @@ Route::middleware('auth')->group(function () {
 
 // Produits
 Route::get('/produits', [ProduitsController::class, 'index'])->name('produits.index');
+Route::get('/promotions', [ProduitsController::class, 'promotions'])->name('promotions.index');
 Route::get('/produits/{id}', [ProduitsController::class, 'show'])->name('produits.show');
 
 // Panier
@@ -33,16 +39,16 @@ Route::post('/panier/{id}/ajouter', [PanierController::class, 'add'])->name('pan
 Route::patch('/panier/{id}', [PanierController::class, 'update'])->name('panier.update');
 Route::delete('/panier/{id}', [PanierController::class, 'remove'])->name('panier.remove');
 
-// Commandes (Public / Guest)
-Route::get('/commande/{id}', [CommandeController::class, 'show'])->name('commande.show'); // Détail commande
-Route::get('/commande/confirmation/{id}', [CommandeController::class, 'confirmation'])->name('commande.confirmation');
-
 // Commandes (nécessite auth)
 Route::middleware('auth')->group(function () {
     Route::get('/commande/create', [CommandeController::class, 'create'])->name('commande.create'); // Page de finalisation
     Route::post('/commande', [CommandeController::class, 'store'])->name('commande.store'); // Valider panier
     Route::get('/commande', [CommandeController::class, 'index'])->name('commande.index'); // Liste des commandes
 });
+
+// Commandes (Public / Guest)
+Route::get('/commande/{id}', [CommandeController::class, 'show'])->name('commande.show'); // Détail commande
+Route::get('/commande/confirmation/{id}', [CommandeController::class, 'confirmation'])->name('commande.confirmation');
 
 // Admin (nécessite auth + role admin via Bouncer ou middleware)
 Route::prefix('admin')->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {

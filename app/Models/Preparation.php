@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $statut
  * @property \Illuminate\Support\Carbon $date_debut
  * @property \Illuminate\Support\Carbon|null $date_fin
- * @property-read \App\Models\Commande|null $commande
- * @property-read \App\Models\User|null $employe
+ * @property-read \App\Models\Commande $commande
+ * @property-read \App\Models\User $employe
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preparation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preparation newQuery()

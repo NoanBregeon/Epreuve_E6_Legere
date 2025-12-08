@@ -16,6 +16,7 @@ use Silber\Bouncer\Database\HasRolesAndAbilities;
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property bool $is_admin
+ * @property string $role
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -43,6 +44,7 @@ use Silber\Bouncer\Database\HasRolesAndAbilities;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  *
  * @mixin \Eloquent
@@ -61,7 +63,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'is_admin', // On garde pour compatibilité migration précédente, mais on utilisera Bouncer
+        'is_admin',
+        'role',
     ];
 
     /**
