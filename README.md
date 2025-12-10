@@ -155,7 +155,7 @@ Suivez ces étapes pour déployer le projet en local :
     cp .env.example .env
     ```
     Ouvrez le fichier `.env` et configurez vos accès à la base de données :
-    ```
+    ```env
     DB_CONNECTION=
     DB_HOST=
     DB_PORT=
