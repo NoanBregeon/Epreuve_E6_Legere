@@ -1,273 +1,162 @@
-# 🚀 Drive E6 – Application de Drive Supermarché
-*Projet complet réalisé dans le cadre de l’épreuve E6 – BTS SIO SLAM*
-
 <div align="center">
 
-### **Laravel 12 · PHP 8.2 · TailwindCSS · Alpine.js · Vite**
+# 🛒 DRIVE E6
+### L'expérience Drive Nouvelle Génération
 
-![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Alpine.js](https://img.shields.io/badge/Alpine.js-3.0-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)
+![Banner](https://capsule-render.vercel.app/api?type=waving&color=0ea5e9&height=200&section=header&text=Drive%20E6&fontSize=80&animation=fadeIn&fontAlignY=35&desc=Projet%20BTS%20SIO%20SLAM%20•%20Epreuve%20E6&descAlignY=55&descAlign=50)
+
+[![Laravel](https://img.shields.io/badge/Laravel-12.0-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Alpine.js](https://img.shields.io/badge/Alpine.js-3.0-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
+[![Vite](https://img.shields.io/badge/Vite-4.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+
+<br />
+
+**Une application e-commerce complète simulant un Drive de supermarché.**  
+*Architecture MVC • Service Layer • Sécurité Avancée*
+
+[Fonctionnalités](#-fonctionnalités-clés) • [Installation](#-installation--démarrage) • [Démo](#-comptes-de-démonstration)
 
 </div>
 
 ---
 
-# 🎯 Présentation
+## ⚡️ Aperçu Rapide
 
-**Drive E6** est une application Laravel reproduisant l’expérience complète d’un Drive de supermarché :
-- Catalogue dynamique
-- Panier en temps réel
-- Promotions avancées
-- Espace client + espace administrateur
-- Gestion des commandes & préparation
-- Architecture Laravel propre (MVC + Services)
-
-L’objectif : démontrer des compétences web professionnelles pour l’épreuve E6.
+**Drive E6** n'est pas qu'un simple site e-commerce. C'est une solution complète intégrant :
+> 🛍️ **Front-Office Client** : Catalogue, Panier AJAX, Promotions complexes.  
+> ⚙️ **Back-Office Admin** : Gestion des stocks, CRUD produits, Suivi des commandes.
 
 ---
 
-# 🧩 Table des Matières
+## 🚀 Fonctionnalités Clés
 
-- [Fonctionnalités](#-fonctionnalités)
-- [Architecture](#-architecture)
-- [Modèle de données](#-modèle-de-données)
-- [Stack Technique](#-stack-technique)
-- [Prérequis](#-prérequis)
-- [Installation](#-installation)
-- [Comptes de Démo](#-comptes-de-démo)
-- [Tests](#-tests)
-- [Structure du Projet](#-structure-du-projet)
-- [Auteur](#-auteur)
+### 🛒 Expérience Client (Front-Office)
 
----
+| Module | Description |
+| :--- | :--- |
+| **Catalogue Intelligent** | Filtres dynamiques, Recherche instantanée, Tri par prix/nom. |
+| **Panier Live** | Ajout/Retrait sans rechargement (Alpine.js), Calculs TTC temps réel. |
+| **Promotions Smart** | Gestion des règles : *"-20%"*, *"-5€"*, *"2 achetés = 1 offert"*. |
+| **Espace Perso** | Historique de commandes, Profil, Authentification sécurisée. |
 
-# 🚀 Fonctionnalités
+### 🛠 Administration (Back-Office)
 
-## 🛒 Front-Office (Espace Client)
-
-### Catalogue moderne
-- Grille responsive
-- Recherche instantanée
-- Filtres dynamiques (catégorie, stock)
-- Tri : A-Z, prix, nouveauté
-- Badges visuels : *Promo*, *Nouveau*, *Rupture*
-
-### Panier intelligent
-- Ajout / suppression fluide (Alpine.js)
-- Totaux HT / TVA / TTC en direct
-- Contrôle strict des stocks
-- Feedback instantané
-
-### Promotions automatiques
-- Pourcentage (ex : -20%)
-- Réduction fixe
-- Offres conditionnelles (ex : “2 = 1 offert”)
-- Calcul automatique des économies
-
-### Commandes
-- Validation du panier
-- Créneau Drive simulé
-- Génération numéro unique
-- Historique complet côté client
-
-### Espace membre
-- Inscription / connexion sécurisée (Laravel Breeze)
-- Gestion du profil utilisateur
+| Module | Description |
+| :--- | :--- |
+| **Dashboard** | Vue d'ensemble des KPIs (Ventes, Ruptures). |
+| **Gestion Produits** | CRUD complet, Upload d'images, Gestion des stocks. |
+| **Commandes** | Suivi du statut, Préparation des commandes. |
 
 ---
 
-## 🛠 Back-Office (Administration)
+## 🏗 Architecture & Tech Stack
 
-- Dashboard synthétique
-- CRUD Produits complet
-- Gestion des stocks
-- Gestion des promotions
-- Gestion et suivi des commandes
-- Interface claire et optimisée pour la rapidité
+Ce projet est construit sur des bases solides pour garantir maintenabilité et performance.
 
----
+<div align="center">
 
-# 🧱 Architecture
+| **Backend** | **Frontend** | **Data & Tools** |
+| :---: | :---: | :---: |
+| **Laravel 12**<br>Framework PHP | **Blade**<br>Templating | **MariaDB**<br>Base de données |
+| **Bouncer**<br>Gestion des Rôles | **Tailwind CSS**<br>Styling Utility-First | **Vite**<br>Bundler Rapide |
+| **Service Layer**<br>Logique Métier | **Alpine.js**<br>Interactivité Légère | **Composer / NPM**<br>Package Managers |
 
-Le projet applique rigoureusement les bonnes pratiques Laravel.
+</div>
 
-## Design Patterns utilisés
-- **MVC** : séparation nette des responsabilités
-- **Service Layer** :  
-  - `PanierService.php` gère toute la logique métier : totaux, promotions, limites de stock, etc.
-- **Injection de dépendances**
-- **Validation via FormRequests**
-
-## Sécurité intégrée
-- Authentification **Laravel Breeze**
-- Rôles & permissions via **Silber/Bouncer**
-  - `admin` → tout accès
-  - `editeur` → gestion du catalogue
-  - `client` → front-office
-- Protection CSRF
-- Validation stricte des données
+### 🔐 Sécurité
+*   Authentification via **Laravel Breeze**.
+*   Protection **CSRF** & Validation **FormRequest**.
+*   Isolation des rôles (Admin vs Client).
 
 ---
 
-# 🗄 Modèle de Données
+## 📦 Installation & Démarrage
 
-### Structure principale (MariaDB/MySQL)
+<details>
+<summary><b>🔽 Cliquer pour voir les étapes d'installation</b></summary>
 
-| Table | Description |
-|-------|-------------|
-| `users` | Informations d’authentification |
-| `clients` | Profil client |
-| `produits` | Catalogue Drive |
-| `commandes` | En-têtes de commandes |
-| `lignes_commandes` | Détails des commandes |
-| `promotions` | Règles promotionnelles |
-| `preparations` | Suivi du traitement des commandes |
+### 1. Prérequis
+*   PHP ≥ 8.2
+*   Composer
+*   Node.js & NPM
+*   MySQL / MariaDB
 
----
+### 2. Installation
 
-# 💻 Stack Technique
-
-| Domaine | Technologie |
-|---------|-------------|
-| Framework | Laravel 12 |
-| Backend | PHP 8.2 |
-| Frontend | Blade + Alpine.js |
-| UI | TailwindCSS |
-| Build | Vite |
-| BDD | MariaDB / MySQL |
-| Auth | Laravel Breeze |
-| Permissions | Bouncer |
-| Seeds | Jeu de données réaliste (20 produits) |
-
----
-
-# ⚙️ Prérequis
-
-- PHP ≥ 8.2  
-- Composer  
-- Node.js (LTS) + NPM  
-- MySQL / MariaDB  
-
----
-
-# 📦 Installation
-
-## 1️⃣ Cloner le projet
 ```bash
+# Cloner le repo
 git clone https://github.com/NoanBregeon/Epreuve_E6_Legere.git
 cd Epreuve_E6_Legere
-```
 
-## 2️⃣ Installer les dépendances PHP
-
-```bash
+# Dépendances
 composer install
-```
-
-## 3️⃣ Installer les dépendances JS
-
-```bash
 npm install
-```
 
-## 4️⃣ Configurer l’environnement
-
-```bash
+# Environnement
 cp .env.example .env
-```
+# (Configurer la BDD dans le fichier .env)
 
-Configurer la BDD :
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=
-DB_USERNAME=
-DB_PASSWORD=
-```
-
-## 5️⃣ Générer la clé
-
-```bash
+# Clé & BDD
 php artisan key:generate
-```
-
-## 6️⃣ Migrations + Seeds
-
-```bash
 php artisan migrate:fresh --seed
 ```
 
-## 7️⃣ Lancer l’application
+### 3. Lancement
 
-### Terminal 1 – Vite
+Ouvrez deux terminaux :
 
 ```bash
+# Terminal 1 : Assets
 npm run dev
 ```
 
-### Terminal 2 – Serveur Laravel
-
 ```bash
+# Terminal 2 : Serveur
 php artisan serve
 ```
 
-📍 Accès : **[http://localhost:8000](http://localhost:8000)**
+Accédez à : `http://localhost:8000` 🚀
+
+</details>
 
 ---
 
-# 🔑 Comptes de Démo
+## 🔑 Comptes de Démonstration
 
-| Rôle    | Email                | MDP        |
-| ------- | -------------------- | ---------- |
-| Admin   | `admin@drive.test`   | `password` |
-| Éditeur | `editeur@drive.test` | `password` |
-| Client  | `user@drive.test`    | `password` |
+Pour tester l'application immédiatement :
+
+| Rôle | Email | Mot de passe | Accès |
+| :--- | :--- | :--- | :--- |
+| 👑 **Admin** | `admin@drive.test` | `password` | Accès complet |
+| ✏️ **Éditeur** | `editeur@drive.test` | `password` | Gestion catalogue |
+| 👤 **Client** | `user@drive.test` | `password` | Achat & Panier |
 
 ---
 
-# 🧪 Tests
-
-Lancer PHPUnit :
+## 📂 Structure du Projet
 
 ```bash
-php artisan test
+Epreuve_E6_Legere/
+├── app/
+│   ├── Services/PanierService.php  # 🧠 Cœur de la logique panier
+│   ├── Http/Controllers/           # 🎮 Contrôleurs
+│   └── Models/                     # 🗃️ Modèles Eloquent
+├── database/                       # 💾 Migrations & Seeders
+├── resources/
+│   ├── views/                      # 🎨 Vues Blade
+│   └── js/                         # ✨ Scripts Alpine.js
+└── routes/web.php                  # 🛣️ Routes
 ```
 
 ---
 
-# 📂 Structure du Projet
+<div align="center">
 
-```
-app/
- ├── Http/Controllers/
- ├── Models/
- ├── Services/
- └── View/Components/
+### 👨‍💻 Auteur
 
-database/
- ├── migrations/
- ├── seeders/
- └── factories/
+**Noan Bregeon**  
+*Projet BTS SIO SLAM - Epreuve E6*
 
-resources/
- ├── views/
- ├── js/
- └── css/
-
-routes/
- └── web.php
-
-tests/
-```
-
----
-
-# 🧑‍💻 Auteur
-
-Projet développé par **Noan Bregeon** dans le cadre de l’épreuve **E6 – BTS SIO SLAM**.
-
-*Application pédagogique reproduisant un Drive professionnel avec Laravel 12.*
+</div>
