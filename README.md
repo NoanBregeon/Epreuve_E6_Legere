@@ -155,12 +155,12 @@ Suivez ces étapes pour déployer le projet en local :
     cp .env.example .env
     ```
     Ouvrez le fichier `.env` et configurez vos accès à la base de données :
-    ```env
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=drive_e6
-    DB_USERNAME=root
+    ```
+    DB_CONNECTION=
+    DB_HOST=
+    DB_PORT=
+    DB_DATABASE=
+    DB_USERNAME=
     DB_PASSWORD=
     ```
 
