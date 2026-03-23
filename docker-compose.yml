@@ -17,18 +17,8 @@ services:
         condition: service_healthy
     networks:
       - laravel_network
-
-  nginx:
-    image: nginx:alpine
-    container_name: laravel_nginx
-    restart: unless-stopped
     ports:
       - "80:80"
-    volumes:
-      - ./:/var/www/html
-      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
-    networks:
-      - laravel_network
 
   db:
     image: mariadb:10.11
