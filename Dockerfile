@@ -4,6 +4,8 @@ FROM php:8.4-apache
 ARG user
 ARG uid
 
+ENV APP_USER=${user}
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
@@ -42,5 +44,10 @@ RUN echo '<Directory /var/www/html/public>\n\
 </Directory>' >> /etc/apache2/apache2.conf
 
 RUN a2enmod rewrite
+
+COPY docker/entrypoint.sh /usr/local/bin/laravel-entrypoint
+RUN chmod +x /usr/local/bin/laravel-entrypoint
+
+ENTRYPOINT ["/usr/local/bin/laravel-entrypoint"]
 
 USER $user

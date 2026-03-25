@@ -10,10 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Deploy to Debian Server via SSH
+    - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -21,23 +20,6 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         script: |
           cd /var/www/drive
-          
-          # Pull latest code
           git pull origin main
-          
-          # Rebuild and restart containers
           docker compose down
           docker compose up -d --build
-          
-          # Run Laravel specific deployment tasks inside the running container
-          docker compose exec -T app composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-          docker compose exec -T app php artisan migrate --force
-          docker compose exec -T app php artisan config:cache
-          docker compose exec -T app php artisan route:cache
-          docker compose exec -T app php artisan view:cache
-          
-          # Ensure appropriate permissions
-          sudo chown -R www-data:www-data /var/www/drive/storage
-          sudo chown -R www-data:www-data /var/www/drive/bootstrap/cache
-          sudo chmod -R 775 /var/www/drive/storage
-          sudo chmod -R 775 /var/www/drive/bootstrap/cache
