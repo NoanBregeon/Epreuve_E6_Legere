@@ -43,7 +43,22 @@ RUN echo '<Directory /var/www/html/public>\n\
     Require all granted\n\
 </Directory>' >> /etc/apache2/apache2.conf
 
-RUN a2enmod rewrite
+RUN printf '%s\n' \
+'<VirtualHost *:443>' \
+'    DocumentRoot /var/www/html/public' \
+'' \
+'    SSLEngine on' \
+'    SSLCertificateFile /var/www/html/certs/server.crt' \
+'    SSLCertificateKeyFile /var/www/html/certs/server.key' \
+'' \
+'    <Directory /var/www/html/public>' \
+'        AllowOverride All' \
+'        Require all granted' \
+'    </Directory>' \
+'</VirtualHost>' \
+> /etc/apache2/sites-available/default-ssl.conf
+
+RUN a2enmod rewrite ssl && a2ensite default-ssl
 
 COPY docker/entrypoint.sh /usr/local/bin/laravel-entrypoint
 RUN chmod +x /usr/local/bin/laravel-entrypoint
