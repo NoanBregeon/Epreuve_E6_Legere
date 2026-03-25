@@ -202,6 +202,6 @@ Epreuve_E6_Legere/
 ### 👨‍💻 Auteur
 
 **Noan Bregeon**  
-*Projet développé pour le BTS SIO SLAM - Session 2025*
+*Projet développé pour le BTS SIO SLAM - Session 2026*
 
 </div>
