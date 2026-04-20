@@ -64,5 +64,3 @@ COPY docker/entrypoint.sh /usr/local/bin/laravel-entrypoint
 RUN chmod +x /usr/local/bin/laravel-entrypoint
 
 ENTRYPOINT ["/usr/local/bin/laravel-entrypoint"]
-
-USER $user
