@@ -59,6 +59,10 @@ class Produit extends Model
         'actif',
         'image',
         'categorie',
+        'is_non_perissable',
+        'export_fnacdarty',
+        'fnacdarty_category',
+        'export_status',
     ];
 
     protected $casts = [
@@ -66,6 +70,8 @@ class Produit extends Model
         'tva' => 'decimal:2',
         'stock' => 'integer',
         'actif' => 'boolean',
+        'is_non_perissable' => 'boolean',
+        'export_fnacdarty' => 'boolean',
     ];
 
     /**

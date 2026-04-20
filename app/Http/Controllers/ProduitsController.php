@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProduitRequest;
 use App\Models\Produit;
+use App\Services\FnacDartyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
@@ -63,6 +64,19 @@ class ProduitsController extends Controller
         $produit = Produit::where('actif', true)->findOrFail($id);
 
         return view('produits.show', compact('produit'));
+    }
+
+    /**
+     * Espace Client : Lister les produits non périssables (Catalogue Spécial Fnac Darty simulé)
+     */
+    public function nonPerissables()
+    {
+        $produits = Produit::where('is_non_perissable', true)
+            ->where('actif', true)
+            ->orderBy('libelle')
+            ->paginate(12);
+
+        return view('produits.non_perissables', compact('produits'));
     }
 
     /**

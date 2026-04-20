@@ -195,6 +195,9 @@ class DatabaseSeeder extends Seeder
                 'stock' => 150,
                 'actif' => true,
                 'categorie' => 'Épicerie',
+                'is_non_perissable' => true,
+                'export_fnacdarty' => true,
+                'fnacdarty_category' => 'Epicerie Salée > Riz et Pâtes',
             ],
             [
                 'reference' => 'EPI002',
@@ -205,6 +208,9 @@ class DatabaseSeeder extends Seeder
                 'stock' => 100,
                 'actif' => true,
                 'categorie' => 'Épicerie',
+                'is_non_perissable' => true,
+                'export_fnacdarty' => true,
+                'fnacdarty_category' => 'Epicerie Salée > Riz et Pâtes',
             ],
             [
                 'reference' => 'EPI003',
@@ -237,6 +243,8 @@ class DatabaseSeeder extends Seeder
                 'stock' => 80,
                 'actif' => true,
                 'categorie' => 'Boissons',
+                'is_non_perissable' => true,
+                'export_fnacdarty' => false, // Laissé exprès à false pour que l'admin puisse l'activer s'il veut tester
             ],
             [
                 'reference' => 'BOI002',

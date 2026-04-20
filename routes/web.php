@@ -5,6 +5,7 @@ use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\PanierController;
 use App\Http\Controllers\ProduitsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Api\FnacDartyMockController;
 use App\Models\Produit;
 use App\Models\Promotion;
 use Illuminate\Support\Facades\Route;
@@ -30,8 +31,14 @@ Route::middleware('auth')->group(function () {
 
 // Produits
 Route::get('/produits', [ProduitsController::class, 'index'])->name('produits.index');
+Route::get('/produits/non-perissables', [ProduitsController::class, 'nonPerissables'])->name('produits.non-perissables');
 Route::get('/promotions', [ProduitsController::class, 'promotions'])->name('promotions.index');
 Route::get('/produits/{id}', [ProduitsController::class, 'show'])->name('produits.show');
+
+// Simulation API (Sans vérification CSRF car simulée comme API externe)
+Route::post('/api/fnacdarty/mock', [FnacDartyMockController::class, 'store'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('api.fnacdarty.mock');
 
 // Panier
 Route::get('/panier', [PanierController::class, 'index'])->name('panier.index');
@@ -49,6 +56,11 @@ Route::middleware('auth')->group(function () {
 // Commandes (Public / Guest)
 Route::get('/commande/{id}', [CommandeController::class, 'show'])->name('commande.show'); // Détail commande
 Route::get('/commande/confirmation/{id}', [CommandeController::class, 'confirmation'])->name('commande.confirmation');
+
+// Espace Admin
+Route::middleware('auth')->group(function () {
+    //
+});
 
 
 

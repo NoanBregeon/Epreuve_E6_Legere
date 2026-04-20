@@ -96,6 +96,8 @@
                 <a href="{{ route('produits.index', ['categorie' => 'Epicerie']) }}" class="hover:text-cyan-200 whitespace-nowrap">Épicerie</a>
                 <a href="{{ route('produits.index', ['categorie' => 'Boissons']) }}" class="hover:text-cyan-200 whitespace-nowrap">Boissons</a>
                 <a href="{{ route('promotions.index') }}" class="text-red-300 font-bold hover:text-red-100 whitespace-nowrap">Promotions</a>
+                <span class="text-cyan-500">|</span>
+                <a href="{{ route('produits.non-perissables') }}" class="text-green-300 font-bold hover:text-green-100 whitespace-nowrap">Non Périssables</a>
             </div>
         </div>
     </div>
