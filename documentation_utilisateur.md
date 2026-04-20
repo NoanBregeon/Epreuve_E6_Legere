@@ -1,310 +1,299 @@
-# DRIVE E6 - Documentation Utilisateur Complete (BTS SIO SLAM)
+# Documentation Utilisateur Complete - Application Web Drive E6
 
-## 0. Contexte du projet
-
-Drive E6 est une application web de type supermarche drive realisee dans le cadre d'un BTS SIO option SLAM.
-
-Objectif metier:
-- Permettre a un client de commander en ligne des produits alimentaires.
-- Permettre au personnel du magasin de gerer le catalogue et le suivi des commandes.
-
-Objectif pedagogique BTS:
-- Mettre en oeuvre une application web multi-profils.
-- Integrer authentification, autorisations, persistance des donnees, securite et qualite.
+Version du document: 3.0
+Date: 20/04/2026
+Public: utilisateurs finaux, personnels magasin, jury non technique
 
 ---
 
-## 1. Public cible
+## Comment lire ce document
 
-### 1.1 Client final
-- Consulte le catalogue.
-- Ajoute des produits au panier.
-- Passe commande avec creneau de retrait.
-- Suit l'etat de sa commande.
+Cette documentation est organisee en 3 niveaux:
 
-### 1.2 Employe editeur
-- Gere le catalogue produits.
-- Met a jour les stocks et les informations produits.
+1. Niveau 1 - Prise en main rapide
+2. Niveau 2 - Utilisation detaillee par ecran
+3. Niveau 3 - Aide, depannage et FAQ
 
-### 1.3 Administrateur
-- Dispose des droits d'administration.
-- Accede au tableau de bord.
-- Gere les produits en back-office.
+Objectif: permettre a un utilisateur debutant de commander facilement, et a un lecteur jury de verifier les usages metier.
 
 ---
 
-## 2. Perimetre fonctionnel global
+# Niveau 1 - Prise en main rapide
 
-Fonctionnalites principales disponibles sur le site:
-- Accueil vitrine avec mise en avant.
-- Catalogue avec recherche, filtres et tri.
-- Fiche produit detaillee.
-- Panier dynamique avec calcul des remises.
-- Tunnel de commande (authentification requise pour validation).
-- Historique et detail des commandes.
-- Espace compte (profil et securite).
-- Espace administration (produits + statistiques).
+## 1. A quoi sert Drive E6 ?
 
----
+Drive E6 est une application web de commande alimentaire en ligne.
 
-## 3. Prerequis pour l'utilisateur
+Elle permet:
 
-- Navigateur web moderne.
-- JavaScript active.
-- Connexion internet stable.
-- Adresse email valide pour le compte et les notifications.
+- de consulter les produits du magasin
+- d'ajouter des produits au panier
+- de passer commande avec un creneau de retrait
+- de consulter ses commandes
+- de gerer son compte utilisateur
 
 ---
 
-## 4. Cartographie complete des pages du site
+## 2. Fonctions principales
 
-## 4.1 Pages publiques (sans connexion)
+### 2.1 Accueil
 
-| URL | Nom de page | Objectif | Actions principales |
-|---|---|---|---|
-| / | Accueil | Presenter le service Drive E6 | Aller au catalogue, consulter les promotions mises en avant |
-| /produits | Catalogue | Lister les produits actifs | Rechercher, filtrer, trier, ouvrir une fiche, ajouter au panier |
-| /promotions | Promotions | Afficher les produits avec promotions | Consulter les offres et ajouter au panier |
-| /produits/{id} | Fiche produit | Montrer le detail d'un produit | Voir prix/stock/description, ajouter au panier |
-| /panier | Panier | Afficher et modifier le panier | Modifier quantites, supprimer article, voir totaux et remises |
-| /login | Connexion | Authentifier un utilisateur | Saisir email/mot de passe |
-| /register | Inscription | Creer un compte | Saisir informations de compte |
-| /forgot-password | Mot de passe oublie | Demarrer la reinitialisation | Demander lien email |
-| /reset-password/{token} | Nouveau mot de passe | Finaliser reinitialisation | Definir nouveau mot de passe |
+Page de presentation du service, avec mise en avant des promotions.
 
-## 4.2 Pages accessibles apres connexion
+![Page accueil](Images_documentation/accueil_legere.png)
 
-| URL | Nom de page | Profil | Objectif |
-|---|---|---|---|
-| /commande/create | Finaliser commande | Client connecte | Choisir creneau et paiement puis confirmer |
-| /commande | Mes commandes | Client connecte | Voir l'historique et les statuts |
-| /commande/{id} | Detail commande | Client proprietaire ou cas invite autorise | Voir detail lignes, montants, statut |
-| /commande/confirmation/{id} | Confirmation ticket | Proprietaire autorise | Visualiser ticket de confirmation |
-| /profile | Mon compte | Utilisateur connecte | Modifier profil, mot de passe, suppression compte |
-| /dashboard | Dashboard utilisateur | Utilisateur verifie | Ecran de synthese applicatif |
-| /verify-email | Verification email | Utilisateur connecte non verifie | Verifier adresse email |
-| /confirm-password | Confirmation mot de passe | Utilisateur connecte | Confirmer identite avant action sensible |
+### 2.2 Catalogue
 
-## 4.3 Pages administration (droits admin)
+Page pour rechercher, filtrer, trier et ajouter des produits au panier.
 
-| URL | Nom de page | Objectif |
-|---|---|---|
-| /admin | Tableau de bord admin | Visualiser KPI (produits, commandes, clients, CA) |
-| /admin/produits/create | Creer produit | Ajouter un nouveau produit |
-| /admin/produits/{produit}/edit | Modifier produit | Mettre a jour fiche produit |
+![Catalogue produits](Images_documentation/produit_legere.png)
 
-Actions admin associees:
-- Creation produit (POST /admin/produits).
-- Mise a jour produit (PUT /admin/produits/{produit}).
-- Suppression produit (DELETE /admin/produits/{produit}).
+### 2.3 Panier
+
+Page pour modifier les quantites et valider sa commande.
+
+![Panier vide](Images_documentation/panier_legere.png)
+
+![Panier avec article](Images_documentation/panier_legere_2.png)
+
+### 2.4 Mon compte
+
+Page pour modifier profil, mot de passe et options du compte.
+
+![Gestion du compte](Images_documentation/gestion_compte.png)
 
 ---
 
-## 5. Parcours utilisateur detaille
+## 3. Profils utilisateurs
 
-## 5.1 Parcours client de A a Z
-
-1. Arrivee sur la page d'accueil.
-2. Navigation vers le catalogue.
-3. Recherche d'un produit, filtrage categorie, tri prix/nom.
-4. Consultation de fiche produit.
-5. Ajout au panier.
-6. Verification des remises automatiques dans le panier.
-7. Connexion ou inscription si necessaire.
-8. Finalisation de commande:
-	 - choix creneau,
-	 - choix paiement (CB ou sur place),
-	 - validation.
-9. Consultation du detail commande.
-10. Suivi du statut jusqu'au retrait.
-
-## 5.2 Parcours employe/admin
-
-1. Connexion avec compte autorise.
-2. Acces a /admin.
-3. Consultation des indicateurs.
-4. Creation ou modification de produits.
-5. Ajustement du stock pour eviter les ruptures.
-
----
-
-## 6. Fonctionnement ecran par ecran
-
-## 6.1 En-tete de navigation (global)
-
-Elements disponibles:
-- Liens connexion/inscription si visiteur.
-- Liens mes commandes, mon compte, deconnexion si connecte.
-- Barre de recherche produit.
-- Bouton panier avec compteur quantite et total TTC courant.
-- Raccourcis categories et promotions.
-
-## 6.2 Catalogue produits
-
-Fonctions:
-- Recherche texte sur le libelle.
-- Filtre categorie.
-- Filtre produits en stock.
-- Tri prix croissant/decroissant ou alphabetique.
-- Pagination.
-
-Resultat attendu:
-- Afficher uniquement les produits actifs.
-
-## 6.3 Fiche produit
-
-Informations affichees:
-- Reference et libelle.
-- Description.
-- Prix HT, TVA, prix TTC.
-- Stock disponible.
-- Image produit.
-
-Action principale:
-- Ajout au panier.
-
-## 6.4 Panier
-
-Informations affichees:
-- Liste articles avec quantites.
-- Total HT, TVA, TTC.
-- Detail des remises par produit.
-
-Actions:
-- Modifier quantite.
-- Supprimer article.
-- Poursuivre vers validation commande.
-
-## 6.5 Finalisation commande
-
-Champs obligatoires:
-- Creneau de retrait (date future).
-- Moyen de paiement (SUR_PLACE ou CB).
-
-Champs optionnels:
-- Note interne.
-
-Sortie attendue:
-- Message de confirmation.
-- Numero de commande genere automatiquement (format CMD-...)
-
-## 6.6 Mes commandes
-
-Fonctions:
-- Lister commandes du client connecte.
-- Trier par date recente.
-- Ouvrir detail de chaque commande.
-
-## 6.7 Mon compte
-
-Fonctions:
-- Modifier nom/email.
-- Changer mot de passe.
-- Supprimer compte utilisateur.
-
----
-
-## 7. Regles metier visibles pour l'utilisateur
-
-## 7.1 Regles de stock
-- Produit avec stock 0: non commandable.
-- Quantite panier plafonnee au stock disponible.
-
-## 7.2 Regles promotions
-- Application automatique au panier.
-- Trois types utilises:
-	- pourcentage,
-	- montant,
-	- offert.
-
-## 7.3 Regles de commande
-- Validation impossible si panier vide.
-- Creneau obligatoire et date future.
-- Paiement obligatoire.
-
-## 7.4 Regles d'acces
-- Espace admin reserve aux administrateurs.
-- Consultation de commande limitee au proprietaire autorise.
-
----
-
-## 8. Tableau des statuts et interpretation utilisateur
-
-| Statut | Signification cote client |
+| Profil | Ce que vous pouvez faire |
 |---|---|
-| A_PREPARER | Commande enregistree et en attente de traitement |
-| EN_PREPARATION | Equipe magasin en cours de preparation |
-| PRET | Commande disponible au retrait |
-| VALIDE (ticket) | Ticket comptable valide |
+| Visiteur | Voir accueil, catalogue, promotions, panier |
+| Utilisateur connecte | Passer commande, consulter ses commandes, gerer son profil |
+| Administrateur | Acces utilisateur connecte + espace admin |
 
 ---
 
-## 9. FAQ utilisateur complete
+## 4. Demarrage en 5 minutes
+
+1. Ouvrir la page d'accueil.
+2. Aller dans Produits.
+3. Ajouter un ou plusieurs articles au panier.
+4. Ouvrir le panier puis cliquer sur validation.
+5. Se connecter (ou creer un compte) pour finaliser la commande.
+
+---
+
+# Niveau 2 - Utilisation detaillee par ecran
+
+## 5. Navigation generale
+
+Dans le haut de page, vous trouvez:
+
+- un champ de recherche
+- un menu des rayons/categories
+- un acces au panier
+- les liens de connexion, compte et commandes
+
+Bon a savoir:
+
+- le total panier est visible dans l'entete
+- le nombre d'articles est mis a jour automatiquement
+
+---
+
+## 6. Utiliser le catalogue produits
+
+### 6.1 Rechercher un article
+
+1. Saisir un mot-cle dans la barre de recherche.
+2. La liste affiche les produits correspondants.
+
+### 6.2 Filtrer les resultats
+
+Options disponibles:
+
+- filtre par categorie
+- filtre "en stock"
+- tri par nom ou prix
+
+### 6.3 Ajouter au panier
+
+1. Choisir une quantite.
+2. Cliquer sur Ajouter.
+3. Verifier le compteur du panier.
+
+Regle appliquee:
+
+- la quantite ne peut pas depasser le stock disponible.
+
+---
+
+## 7. Utiliser le panier
+
+### 7.1 Consulter le panier
+
+La page panier affiche:
+
+- les produits selectionnes
+- les quantites
+- le prix unitaire
+- le total global
+
+### 7.2 Modifier les quantites
+
+Utiliser les boutons - et + pour diminuer ou augmenter.
+
+### 7.3 Supprimer un article
+
+Cliquer sur l'icone de suppression sur la ligne concernee.
+
+### 7.4 Valider le panier
+
+Cliquer sur "Valider mon panier" pour passer a la finalisation de commande.
+
+---
+
+## 8. Passer une commande
+
+### 8.1 Conditions
+
+- etre connecte
+- avoir un panier non vide
+
+### 8.2 Etapes
+
+1. Ouvrir la page de finalisation.
+2. Choisir un creneau de retrait.
+3. Choisir le moyen de paiement.
+4. Ajouter une note si besoin.
+5. Confirmer la commande.
+
+### 8.3 Resultat attendu
+
+- un numero de commande est genere
+- une page de confirmation s'affiche
+- un email de confirmation peut etre envoye
+
+---
+
+## 9. Consulter ses commandes
+
+Dans "Mes commandes", vous pouvez:
+
+- voir la liste des commandes
+- ouvrir le detail d'une commande
+- verifier le statut de traitement
+
+Statuts possibles (lecture utilisateur):
+
+- A_PREPARER: commande enregistree
+- EN_PREPARATION: equipe en cours de preparation
+- PRET: commande disponible au retrait
+
+---
+
+## 10. Gerer son compte
+
+Sur la page "Mon compte", vous pouvez:
+
+- modifier votre nom
+- modifier votre email
+- changer votre mot de passe
+- supprimer votre compte
+
+Conseil securite:
+
+- utilisez un mot de passe unique et robuste
+
+---
+
+## 11. Fonctionnalites administrateur
+
+Un administrateur connecte peut:
+
+- acceder au tableau de bord admin
+- creer un produit
+- modifier un produit
+- supprimer un produit
+
+Si vous n'etes pas administrateur, l'acces est refuse.
+
+---
+
+# Niveau 3 - Aide, depannage et FAQ
+
+## 12. Messages frequents et interpretation
+
+| Message ou situation | Signification |
+|---|---|
+| Panier vide | Aucun produit n'a ete ajoute |
+| Quantite refusee | Quantite demandee superieure au stock |
+| Acces refuse /admin | Compte sans droit administrateur |
+| Validation impossible | Donnees manquantes (creneau, paiement, etc.) |
+
+---
+
+## 13. Depannage rapide
+
+### 13.1 Je ne peux pas me connecter
+
+1. Verifier email et mot de passe.
+2. Utiliser "Mot de passe oublie" si besoin.
+3. Verifier la reception de l'email de reinitialisation.
+
+### 13.2 Le panier ne se met pas a jour
+
+1. Rafraichir la page.
+2. Reessayer avec une quantite plus faible.
+3. Verifier que le produit est toujours en stock.
+
+### 13.3 Je ne vois pas ma commande
+
+1. Verifier que vous etes connecte avec le bon compte.
+2. Ouvrir "Mes commandes".
+3. Verifier si la commande vient d'etre creee (latence possible).
+
+### 13.4 Je ne recois pas d'email de confirmation
+
+1. Verifier le dossier spam/indesirable.
+2. Verifier l'adresse email du compte.
+3. Conserver le numero de commande affiche a l'ecran.
+
+---
+
+## 14. FAQ utilisateur
 
 Question: Puis-je commander sans compte ?
-Reponse: Le panier est accessible, mais la validation de commande demande une authentification.
+Reponse: Le panier est accessible sans connexion, mais la validation de commande demande un compte.
 
-Question: Pourquoi un article disparait du panier ?
-Reponse: Si la quantite demandee depasse le stock, le systeme ajuste automatiquement au stock disponible.
+Question: Les promotions sont-elles automatiques ?
+Reponse: Oui, les remises applicables sont calculees automatiquement dans le panier.
 
-Question: Je ne vois pas ma commande, que faire ?
-Reponse: Verifier que vous etes connecte avec le bon compte email puis ouvrir Mes commandes.
+Question: Puis-je modifier une commande deja validee ?
+Reponse: La modification directe n'est pas prevue depuis l'interface utilisateur.
 
 Question: Le paiement CB est-il reel ?
-Reponse: Dans ce projet, le paiement CB est simule pour l'exercice.
-
-Question: Quand recois-je la confirmation ?
-Reponse: Une confirmation est envoyee apres creation de la commande (si l'envoi email est disponible).
+Reponse: Non, le mode CB est simule dans le cadre du projet.
 
 ---
 
-## 10. Depannage utilisateur
+## 15. Donnees personnelles (vue utilisateur)
 
-## 10.1 Impossible de se connecter
-1. Verifier email/mot de passe.
-2. Utiliser Mot de passe oublie.
-3. Verifier reception email de reset.
+Donnees utilisees:
 
-## 10.2 Panier non mis a jour
-1. Actualiser la page.
-2. Vider cache navigateur.
-3. Tester en navigation privee.
-
-## 10.3 Erreur a la validation commande
-1. Verifier panier non vide.
-2. Verifier creneau valide.
-3. Verifier choix du moyen de paiement.
-
-## 10.4 Pas d'email de confirmation
-1. Verifier spam.
-2. Verifier email de compte.
-3. Contacter support avec numero de commande.
-
----
-
-## 11. Accessibilite et bonnes pratiques utilisateur
-
-- Utiliser des mots de passe robustes.
-- Se deconnecter sur poste partage.
-- Verifier les montants avant validation.
-- Conserver le numero de commande jusqu'au retrait.
-
----
-
-## 12. Donnees personnelles (vue utilisateur)
-
-Donnees manipulees:
-- Identite de compte.
-- Historique de commandes.
-- Informations necessaires au retrait.
+- informations de compte (nom, email)
+- historique des commandes
+- informations necessaires au retrait
 
 Principes appliques:
-- Acces aux donnees selon authentification.
-- Limitation des acces aux ressources personnelles.
+
+- acces a vos donnees apres authentification
+- acces limite aux donnees de votre propre compte
 
 ---
 
-## 13. Comptes de demonstration (environnement de test)
+## 16. Comptes de demonstration (environnement de test)
 
 | Role | Email | Mot de passe |
 |---|---|---|
@@ -314,14 +303,33 @@ Principes appliques:
 
 ---
 
-## 14. Conclusion utilisateur
+## 17. Procedure de recette utilisateur (simple)
 
-Cette documentation utilisateur couvre l'ensemble du site Drive E6:
-- contexte,
-- publics cibles,
-- description de toutes les pages,
-- procedures detaillees,
-- regles metier visibles,
-- depannage et FAQ.
+1. Ouvrir l'accueil.
+2. Aller sur Produits.
+3. Rechercher un produit puis l'ajouter au panier.
+4. Ouvrir le panier et modifier la quantite.
+5. Se connecter avec le compte client test.
+6. Finaliser une commande.
+7. Ouvrir Mon compte et modifier le nom.
 
-Elle est exploitable telle quelle pour un dossier BTS SIO SLAM (partie utilisateur/recette fonctionnelle).
+Criteres de succes:
+
+- navigation fluide
+- panier coherent
+- commande creee sans erreur
+- profil modifie avec succes
+
+---
+
+## 18. Conclusion
+
+Cette documentation utilisateur couvre:
+
+- la prise en main de l'application
+- les parcours fonctionnels essentiels
+- les actions de compte et commande
+- les cas d'erreur les plus frequents
+- une procedure simple de verification
+
+Elle est adaptee a une presentation BTS SIO SLAM pour la partie utilisateur.
