@@ -1,299 +1,159 @@
-# DRIVE E6 - Documentation Technique Complete (BTS SIO SLAM)
+# Documentation Technique Ultra Complete - Application Web Drive E6
 
-## 0. Contexte professionnel et objectifs
-
-Projet realise dans le cadre de l'epreuve E6 du BTS SIO SLAM.
-
-Problematique metier:
-- Digitaliser un service de type drive de supermarche.
-- Assurer un parcours client fluide et un suivi interne des commandes.
-
-Objectifs techniques:
-- Application web MVC maintenable.
-- Gestion de roles et securite d'acces.
-- Persistance relationnelle fiable.
-- Deploiement automatisable.
+Version du document: 3.0
+Date: 20/04/2026
+Public: Jury technique et non technique, techniciens, maintenance applicative
 
 ---
 
-## 1. Perimetre technique du projet
+## Comment lire ce document
 
-## 1.1 Fonctionnalites couvrees
-- Catalogue produits avec recherche/filtrage/tri.
-- Panier session avec calcul de remises.
-- Validation de commande avec creneau et paiement.
-- Ecriture double commande et ticket comptable.
-- Administration produits.
-- Authentification et verification email.
+Ce document est volontairement structure en 3 niveaux:
 
-## 1.2 Hors perimetre actuel
-- Paiement CB reel (simulation).
-- Gestion complete des promotions en back-office (partielle).
-- Workflow complet de preparation avec ecrans dedies (partiel).
+1. Niveau A - Lecture metier (non developpeur)
+2. Niveau B - Lecture technicienne (exploitation, support, procedure)
+3. Niveau C - Lecture developpeur (architecture, code, SQL, evolution)
+
+Objectif: permettre a un membre du jury non dev de comprendre le projet, tout en donnant un niveau de detail suffisant a un jury dev/technique.
 
 ---
 
-## 2. Stack technique et dependances
+# Niveau A - Vue claire pour non developpeur
 
-## 2.1 Backend
-- PHP ^8.2 (composer).
-- Laravel 12.
-- Bouncer pour ACL (roles/abilities).
+## A1. Resume executif
 
-## 2.2 Frontend
-- Blade.
-- Tailwind CSS.
-- Alpine.js.
-- Vite.
+L'application est une application web de gestion d'un drive alimentaire (front client + back-office admin). Elle permet:
 
-## 2.3 Base de donnees
-- MariaDB 10.11 (Docker).
+- de consulter un catalogue de produits par categories
+- de rechercher et filtrer les produits
+- de remplir un panier puis valider une commande
+- de gerer un compte client (profil, mot de passe)
+- d'administrer les produits via un espace reserve
 
-## 2.4 Qualite et outillage
-- PHPUnit.
-- PHPStan + Larastan.
-- Laravel Pint.
+Valeur metier:
 
----
+- digitalisation du parcours client
+- reduction des erreurs de prise de commande
+- mise a jour rapide du catalogue en back-office
+- socle evolutif pour promotions et gestion de preparation
 
-## 3. Architecture logicielle
+<div style="page-break-after: always;"></div>
 
-Pattern principal:
-- MVC Laravel + Service Layer.
+## A2. Fonctions principales (langage metier)
 
-Decoupage:
-- Couche presentation: vues Blade.
-- Couche controle: controllers HTTP.
-- Couche metier: services (PanierService).
-- Couche donnees: modeles Eloquent + migrations.
+### Accueil
 
-Flux standard:
-1. Route web.
-2. Middleware (auth, admin, csrf).
-3. Controller.
-4. Service metier.
-5. Eloquent/DB.
-6. Vue ou redirection.
+La page d'accueil met en avant les promotions et les points forts du service (rapidite, disponibilite, qualite).
 
----
+### Catalogue produits
 
-## 4. Architecture infrastructure et execution
+Le client visualise les produits, filtre par categorie, trie, recherche et ajoute des quantites au panier.
 
-Docker Compose declare 3 services:
-- app: image personnalisee PHP/Apache.
-- nginx: reverse proxy HTTP (port 80).
-- db: MariaDB avec volume persistant.
+### Panier
 
-Points importants:
-- Reseau dedie laravel_network.
-- Healthcheck base de donnees.
-- Montage du code source dans les conteneurs pour dev.
+Le client modifie les quantites, supprime des lignes et visualise le total avant validation.
 
-Observation technique:
-- Dockerfile utilise php:8.4-apache alors que composer cible php ^8.2.
-- Ce n'est pas bloquant, mais doit etre coherent avec la politique de version de l'equipe.
+### Commande
+
+Apres connexion, le client finalise la commande avec creneau de retrait et mode de paiement (simulation), puis recoit une confirmation.
+
+### Mon compte
+
+Le client met a jour son profil, son email et son mot de passe, ou supprime son compte.
+
+### Administration
+
+Un utilisateur admin accede a un espace securise pour piloter les produits (CRUD) et suivre des indicateurs.
 
 ---
 
-## 5. Configuration applicative
+## A3. Ecrans (preuves visuelles)
 
-Variables critiques:
-- APP_ENV, APP_DEBUG, APP_KEY, APP_URL.
-- DB_*.
-- MAIL_*.
-- CACHE_DRIVER, SESSION_DRIVER, QUEUE_CONNECTION.
+### Ecran accueil
 
-Bonnes pratiques:
-- APP_DEBUG=false en production.
-- Aucun secret en dur dans le code.
-- Caches Laravel actifs en production.
+![Accueil application web](Images_documentation/accueil_legere.png)
 
----
+<div style="page-break-after: always;"></div>
 
-## 6. Cartographie des routes et cas d'utilisation
+### Ecran catalogue produits
 
-## 6.1 Routes front-office
-- GET / : accueil.
-- GET /produits : listing produits.
-- GET /promotions : listing promotions.
-- GET /produits/{id} : detail produit.
-- GET /panier : affichage panier.
-- POST /panier/{id}/ajouter : ajout article.
-- PATCH /panier/{id} : modification quantite.
-- DELETE /panier/{id} : suppression ligne.
+![Catalogue produits](Images_documentation/produit_legere.png)
 
-## 6.2 Routes commande
-- GET /commande/create (auth): finalisation.
-- POST /commande (auth): creation commande.
-- GET /commande (auth): liste commandes utilisateur.
-- GET /commande/{id}: detail commande avec controle d'acces.
-- GET /commande/confirmation/{id}: confirmation ticket legacy.
+### Ecran panier vide
 
-## 6.3 Routes securite compte
-- register, login, forgot-password, reset-password.
-- verify-email, confirm-password, logout.
-- profile (edit/update/delete).
+![Panier vide](Images_documentation/panier_legere.png)
 
-## 6.4 Routes admin
-- Prefixe /admin + auth + AdminMiddleware.
-- GET /admin: dashboard.
-- CRUD produits (create/store/edit/update/destroy).
+<div style="page-break-after: always;"></div>
+
+### Ecran panier avec article
+
+![Panier avec produit](Images_documentation/panier_legere_2.png)
+
+### Ecran profil utilisateur
+
+![Gestion du compte utilisateur](Images_documentation/gestion_compte.png)
+
+<div style="page-break-after: always;"></div>
+
+## A4. Roles utilisateurs
+
+| Role | Acces |
+|---|---|
+| visiteur | accueil, produits, promotions, panier |
+| utilisateur connecte | visiteur + commande + gestion du profil |
+| administrateur | utilisateur connecte + espace admin (/admin) |
 
 ---
 
-## 7. Description des modules techniques
+## A5. Risques metier et reponses
 
-## 7.1 ProduitsController
-- Catalogue public (filtres, tri, pagination).
-- Chargement eager des promotions associees.
-- CRUD produit reserve admin via StoreProduitRequest.
+| Risque | Impact | Reponse actuelle |
+|---|---|---|
+| indisponibilite base MariaDB | application inutilisable | conteneur DB dedie + healthcheck Docker |
+| rupture de stock apres ajout panier | incoherence de commande | controle stock dans PanierService |
+| acces non autorise au back-office | exposition de fonctions sensibles | middleware auth + AdminMiddleware |
+| echec envoi email confirmation | client non notifie | envoi non bloquant + trace d'erreur |
+| erreur de saisie profil | donnees clients incorrectes | validation Laravel cote serveur |
 
-## 7.2 PanierController
-- Interface HTTP du panier.
-- Delegue la logique au PanierService.
-- Gere feedback utilisateur via messages de session.
+<div style="page-break-after: always;"></div>
 
-## 7.3 CommandeController
-- Affichage commandes du client.
-- Generation des creneaux de retrait.
-- Validation et creation transactionnelle commande + ticket + lignes.
-- Decrementation du stock a la validation.
-- Envoi email de confirmation (non bloquant).
+# Niveau B - Vue technicienne (exploitation/support)
 
-## 7.4 AdminController
-- Calcul des statistiques de synthese:
-  - nombre produits,
-  - nombre tickets,
-  - nombre clients,
-  - chiffre d'affaires total.
+## B1. Fiche technique rapide
 
-## 7.5 AdminMiddleware
-- Controle authentification.
-- Controle role admin via User::isAdmin().
+- Type: application web Laravel (MVC)
+- Langage: PHP 8.2+
+- Framework: Laravel 12
+- Front: Blade + Tailwind CSS + Alpine.js + Vite
+- Base de donnees: MariaDB 10.11
+- ACL: Bouncer (roles et abilities)
+- Conteneurisation: Docker Compose
 
 ---
 
-## 8. Service metier central: PanierService
+## B2. Prerequis d'installation
 
-Responsabilites:
-- Stockage du panier en session.
-- Gestion ajout/modification/suppression.
-- Calcul des totaux HT/TVA/TTC.
-- Application des promotions.
-
-Algorithmes de remise:
-- pourcentage: remise proportionnelle au montant de ligne TTC.
-- montant: remise fixe par unite.
-- offert: calcul par lots avec floor(quantite/min_quantite).
-
-Optimisation:
-- Cache des promotions (cle promotions_all, 1h).
-
-Regles de controle:
-- Refus ajout produit inexistant ou hors stock.
-- Plafonnement quantite au stock reel.
+- Windows 10/11, Linux ou macOS
+- Docker + Docker Compose
+- PHP 8.2+ et Composer (si execution hors Docker)
+- Node.js + npm (assets front)
+- fichier .env configure
 
 ---
 
-## 9. Modele de donnees relationnel
+## B3. Installation pas a pas
 
-## 9.1 Tables principales
+1. Cloner le depot
+2. Installer dependances PHP
+3. Installer dependances front
+4. Creer le fichier .env
+5. Generer la cle applicative
+6. Lancer Docker Compose
+7. Executer migrations + seed
+8. Compiler les assets
 
-users:
-- id, name, email, password, is_admin, role, timestamps, etc.
+Commandes:
 
-clients:
-- id, nom, prenom, email unique, telephone.
-
-produits:
-- id, reference unique, libelle, description, image, categorie, prix_ht, tva, stock, actif.
-
-promotions:
-- id, produit_id nullable, type_promo, valeur_promo, min_quantite + champs visuels (titre, badge, image, etc.).
-
-commandes:
-- id, client_id nullable, numero_commande unique, statut, creneau_retrait, total_ht, total_ttc, note_interne.
-
-lignes_commandes:
-- id, commande_id, produit_id, quantite_demandee, quantite_preparee, prix_unitaire_ht, statut_ligne, note.
-
-tickets:
-- id, client_id nullable, user_id nullable, total_ht, total_tva, total_ttc, moyen_paiement, statut.
-
-lignes_tickets:
-- id, ticket_id, produit_id, qte, prix_unitaire_ht, tva, total_ht, total_ttc.
-
-preparations:
-- id, commande_id, employe_id, statut, date_debut, date_fin.
-
-ACL Bouncer:
-- roles, abilities, permissions, assigned_roles.
-
-## 9.2 Integrite referentielle
-- FK avec cascade ou restriction selon logique metier.
-- Index sur statut/creneau/statut_ligne dans les tables transactionnelles.
-
----
-
-## 10. Securite applicative
-
-## 10.1 Authentification
-- Laravel auth standard + verification email active (User implement MustVerifyEmail).
-
-## 10.2 Autorisation
-- Role admin via Bouncer et champ legacy is_admin.
-- Middleware admin pour isoler le back-office.
-
-## 10.3 Validation des entrees
-- FormRequest sur le CRUD produit.
-- Validation sur creation commande (creneau, paiement).
-
-## 10.4 Mesures complementaires
-- CSRF Laravel.
-- Password hash natif Laravel.
-- Controle type/taille fichier image.
-
----
-
-## 11. Flux metier critiques
-
-## 11.1 Flux commande client
-1. Constitution panier en session.
-2. Finalisation (creneau, paiement, note).
-3. Ouverture transaction DB.
-4. Creation commande Drive.
-5. Creation ticket comptable.
-6. Creation lignes commande et lignes ticket.
-7. Decrementation stock.
-8. Commit transaction.
-9. Vidage panier.
-10. Tentative envoi email.
-
-## 11.2 Flux administration catalogue
-1. Admin authentifie accede a /admin.
-2. Cree ou modifie un produit.
-3. Validation serveur via StoreProduitRequest.
-4. Upload image sur stockage public.
-
----
-
-## 12. CI/CD et deploiement
-
-Pipeline GitHub Actions:
-- Declenchement: push sur main.
-- Action SSH vers serveur Debian.
-- git pull.
-- docker compose down/up --build.
-- composer install no-dev.
-- php artisan migrate --force.
-- caches config/route/view.
-- correction permissions storage + bootstrap/cache.
-
----
-
-## 13. Installation, exploitation, maintenance
-
-## 13.1 Installation locale type
 ```bash
 composer install
 npm install
@@ -301,90 +161,557 @@ cp .env.example .env
 php artisan key:generate
 docker compose up -d
 php artisan migrate:fresh --seed
-npm run dev
+npm run build
 ```
 
-## 13.2 Tests
+Note importante:
+
+Le projet peut tourner en mode local classique ou en conteneurs. En contexte jury/recette, privilegier Docker pour reproductibilite.
+
+<div style="page-break-after: always;"></div>
+
+## B4. Configuration locale
+
+Fichier principal: .env
+
+Parametres critiques:
+
+- APP_ENV, APP_DEBUG, APP_KEY, APP_URL
+- DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+- MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
+- CACHE_DRIVER, SESSION_DRIVER, QUEUE_CONNECTION
+
+Exemple cible local (indicatif):
+
+```dotenv
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=drive_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+---
+
+## B5. Demarrage et verification technique
+
+Au demarrage, la plateforme:
+
+1. charge la configuration Laravel
+2. initialise les services applicatifs
+3. connecte MariaDB
+4. sert les pages Blade
+5. charge les assets Vite compiles
+
+Checklist verification rapide:
+
+- page accueil chargee
+- page produits chargee avec cartes
+- ajout panier possible
+- profil accessible apres connexion
+- routes admin protegees
+
+---
+
+## B6. Operations de support
+
+### Verifier statut des conteneurs
+
+```bash
+docker compose ps
+```
+
+### Consulter les logs application et base
+
+```bash
+docker compose logs -f app
+docker compose logs -f db
+```
+
+### Vider caches Laravel
+
+```bash
+php artisan optimize:clear
+```
+
+### Rebuild propre des conteneurs
+
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+---
+
+## B7. Guide de depannage (N1/N2)
+
+### Cas 1 - Erreur de connexion DB
+
+Symptomes:
+
+- erreurs SQL a l'affichage
+- pages en erreur 500
+
+Actions:
+
+1. verifier variables DB dans .env
+2. verifier etat du conteneur db
+3. verifier credentials MariaDB
+4. relancer migration si schema absent
+
+### Cas 2 - Assets manquants (manifest Vite)
+
+Symptomes:
+
+- styles absents
+- message de manifest introuvable
+
+Action:
+
+```bash
+npm run build
+```
+
+### Cas 3 - Droits d'ecriture Laravel
+
+Symptomes:
+
+- erreurs sur storage ou cache
+
+Actions:
+
+1. verifier permissions storage et bootstrap/cache
+2. corriger proprietaire/droits dans le conteneur app
+
+### Cas 4 - Route admin inaccessible
+
+Symptomes:
+
+- redirection ou 403 sur /admin
+
+Actions:
+
+1. verifier authentification
+2. verifier role admin (is_admin / bouncer)
+3. verifier AdminMiddleware
+
+<div style="page-break-after: always;"></div>
+
+## B8. Securite exploitation
+
+### Points deja en place
+
+- hash des mots de passe natif Laravel
+- middleware auth/verified
+- protection CSRF
+- validation serveur sur formulaires sensibles
+- isolation route admin par middleware
+
+### Points de vigilance
+
+- APP_DEBUG doit etre false en production
+- secret applicatifs uniquement via .env (jamais en dur)
+- coherer version PHP conteneur et version cible composer
+
+---
+
+## B9. Sauvegarde et reprise
+
+### Sauvegarde recommandee
+
+- dump MariaDB quotidien
+- retention minimum 7 jours
+- sauvegarde des fichiers utilisateur (storage/app/public)
+
+### Procedure de reprise
+
+1. restaurer dump DB
+2. restaurer storage si necessaire
+3. verifier .env
+4. relancer conteneurs
+5. lancer tests smoke (accueil, login, panier, commande)
+
+---
+
+## B10. Tests de non regression (technicien)
+
+- affichage accueil
+- recherche produit
+- filtre categorie
+- ajout au panier
+- modification quantite panier
+- suppression ligne panier
+- passage en commande (utilisateur connecte)
+- mise a jour profil utilisateur
+- acces admin et CRUD produit
+
+<div style="page-break-after: always;"></div>
+
+# Niveau C - Vue developpeur / jury technique
+
+## C1. Architecture logique
+
+```mermaid
+flowchart LR
+  R[Routes web] --> M[Middleware]
+  M --> C[Controllers]
+  C --> S[Services metier]
+  C --> E[Eloquent Models]
+  S --> E
+  E --> DB[(MariaDB)]
+  C --> V[Views Blade]
+```
+
+---
+
+## C2. Structure du code
+
+- app/Http/Controllers: controleurs front, panier, commande, admin
+- app/Http/Middleware: controle d'acces
+- app/Services: logique metier (PanierService)
+- app/Models: modeles Eloquent
+- database/migrations: schema relationnel
+- resources/views: templates Blade
+- routes/web.php: routes HTTP
+- config/: configuration framework
+- tests/: tests feature et unit
+
+---
+
+## C3. Bootstrap et cycle de requete
+
+Sequence technique standard:
+
+1. requete HTTP sur une route Laravel
+2. execution des middlewares (session, csrf, auth, admin)
+3. routage vers controller cible
+4. appel eventuel a la couche service
+5. lecture/ecriture DB via Eloquent/Query Builder
+6. rendu Blade ou redirection
+
+Fichiers pivots:
+
+- bootstrap/app.php
+- app/Http/Kernel.php
+- routes/web.php
+
+<div style="page-break-after: always;"></div>
+
+## C4. Cartographie des routes principales
+
+### Front-office
+
+- GET / : accueil
+- GET /produits : catalogue
+- GET /promotions : promotions
+- GET /produits/{id} : detail
+- GET /panier : consultation panier
+- POST /panier/{id}/ajouter : ajout article
+- PATCH /panier/{id} : maj quantite
+- DELETE /panier/{id} : suppression ligne
+
+### Profil utilisateur (auth)
+
+- GET /profile
+- PATCH /profile
+- DELETE /profile
+
+### Commandes
+
+- GET /commande/create (auth)
+- POST /commande (auth)
+- GET /commande (auth)
+- GET /commande/{id}
+- GET /commande/confirmation/{id}
+
+### Administration
+
+- Prefixe /admin
+- middleware auth + AdminMiddleware
+- dashboard et CRUD produits
+
+---
+
+## C5. Description des composants principaux
+
+## C5.1 ProduitsController
+
+Responsabilites:
+
+- listing catalogue public
+- tri, filtrage, recherche, pagination
+- affichage detail produit
+- affichage promotions
+
+## C5.2 PanierController + PanierService
+
+Responsabilites:
+
+- gestion des lignes panier en session
+- ajout/modification/suppression
+- calculs montants (HT/TVA/TTC)
+- application des promotions
+
+## C5.3 CommandeController
+
+Responsabilites:
+
+- finalisation commande (auth)
+- creation transactionnelle commande + ticket + lignes
+- decrement du stock
+- envoi email de confirmation non bloquant
+
+## C5.4 AdminController
+
+Responsabilites:
+
+- dashboard de synthese
+- statistiques (produits, tickets, clients, CA)
+- pilotage espace admin
+
+## C5.5 AdminMiddleware
+
+Responsabilites:
+
+- verifier utilisateur connecte
+- verifier droits admin
+- proteger les routes sensibles
+
+<div style="page-break-after: always;"></div>
+
+## C6. Service metier detaille: PanierService
+
+Fonctions metier:
+
+- gestion du panier en session
+- controle existence produit
+- controle quantite versus stock
+- calcul total panier et remises
+
+Regles de remise:
+
+- pourcentage: reduction proportionnelle
+- montant: reduction fixe par unite
+- offert: lot base sur min_quantite
+
+Optimisation:
+
+- cache des promotions (cle promotions_all, TTL 1h)
+
+---
+
+## C7. Schema base de donnees
+
+## C7.1 Tables metier principales
+
+- users
+- clients
+- produits
+- promotions
+- commandes
+- lignes_commandes
+- tickets
+- lignes_tickets
+- preparations
+
+## C7.2 Relations principales
+
+- commandes.client_id -> clients.id
+- lignes_commandes.commande_id -> commandes.id
+- lignes_commandes.produit_id -> produits.id
+- lignes_tickets.ticket_id -> tickets.id
+- lignes_tickets.produit_id -> produits.id
+
+## C7.3 Contraintes fonctionnelles notables
+
+- reference produit unique
+- numero_commande unique
+- controle stock avant validation
+- colonnes statut pour suivi du cycle commande
+
+---
+
+## C8. Flux metier detaille
+
+## C8.1 Flux "Ajout au panier"
+
+```mermaid
+sequenceDiagram
+  participant U as Utilisateur
+  participant C as PanierController
+  participant S as PanierService
+  participant P as Produit
+  participant Sess as Session
+
+  U->>C: POST /panier/{id}/ajouter
+  C->>S: add(id, quantite)
+  S->>P: verifier produit + stock
+  S->>Sess: maj panier session
+  S-->>C: total mis a jour
+  C-->>U: redirection avec message
+```
+
+## C8.2 Flux "Validation commande"
+
+```mermaid
+sequenceDiagram
+  participant U as Utilisateur
+  participant CC as CommandeController
+  participant DB as MariaDB
+  participant M as Mailer
+
+  U->>CC: POST /commande
+  CC->>DB: begin transaction
+  CC->>DB: insert commande + ticket + lignes
+  CC->>DB: update stock produits
+  CC->>DB: commit
+  CC->>M: tentative envoi email
+  CC-->>U: page confirmation
+```
+
+---
+
+## C9. Securite technique
+
+### C9.1 Bonnes pratiques en place
+
+- auth Laravel standard
+- verification email active
+- middleware d'autorisation admin
+- CSRF natif Laravel
+- hash password natif Laravel
+- validation des entrees serveur
+
+### C9.2 Points de vigilance
+
+- route detail commande en acces public a auditer selon regle metier cible
+- dualite users/clients a clarifier pour controle d'acces strict
+- gestion secrets et mode debug a verrouiller en production
+
+### C9.3 Plan de remediations priorise
+
+1. verrouiller acces detail commande (policy/gate)
+2. unifier mapping user-client ou documenter strictement la correspondance
+3. externaliser secrets et activer politique de rotation
+4. passer email en file asynchrone (queue)
+
+<div style="page-break-after: always;"></div>
+
+## C10. Qualite et tests
+
+### C10.1 Outillage en place
+
+- PHPUnit
+- PHPStan + Larastan
+- Laravel Pint
+
+### C10.2 Commandes qualite
+
 ```bash
 php artisan test
-php artisan test --coverage
-```
-
-## 13.3 Qualite statique
-```bash
 ./vendor/bin/phpstan analyse
 ./vendor/bin/pint
 ```
 
-## 13.4 Incident courant assets manquants
-Symptome:
-- manifest Vite introuvable.
+### C10.3 Plan de progression tests
 
-Correction:
-- npm run build.
-
----
-
-## 14. Points de vigilance et dette technique
-
-1. Cohabitation logique client/user dans la gestion des commandes.
-2. Controle d'acces detail commande base sur client_id vs Auth::id, a verifier selon modele metier reel.
-3. Promotions melangent champs marketing (bannieres) et logique tarifaire.
-4. Paiement CB actuellement simule.
-5. Peu de traces d'ecrans dedies au cycle de preparation (preparations).
-
-Ces points sont exploitables pour la partie ameliorations/propositions a l'oral BTS.
+- renforcer tests feature sur panier/commande
+- ajouter tests d'autorisation admin
+- ajouter tests de non regression sur promotions
+- integrer qualite statique dans pipeline CI
 
 ---
 
-## 15. Ameliorations techniques proposees (argumentaire BTS)
+## C11. Performance et scalabilite
 
-Priorite 1:
-- Clarifier l'identite client (unifier user/client ou documenter la correspondance).
-- Renforcer les tests de securite sur les acces commandes.
-- Passer les envois email en queue asynchrone.
+### C11.1 Observations
 
-Priorite 2:
-- Modeliser les statuts commande via enum/State Pattern.
-- Ajouter audit trail des changements de statut.
-- Industrialiser gestion back-office des promotions.
+- pagination deja presente cote catalogue
+- charge DB concentree sur parcours panier/commande
+- usage cache promotions pour limiter requetes repetitives
 
-Priorite 3:
-- Exposer des indicateurs operationnels avances.
-- Ajouter strategie de sauvegarde/restauration documentee.
+### C11.2 Optimisations proposees
+
+- indexation complementaire sur statuts et creneaux
+- file asynchrone pour email et taches lentes
+- surveillance metriques SQL et temps de reponse
 
 ---
 
-## 16. Annexes utiles
+## C12. Observabilite et exploitation
 
-Comptes de demo seedes:
-- admin@drive.test / password
-- editeur@drive.test / password
-- user@drive.test / password
+### C12.1 Traces existantes
 
-Commandes d'administration:
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan cache:clear
-docker compose logs -f app
-docker compose logs -f nginx
-docker compose logs -f db
-```
+- logs Laravel (storage/logs)
+- logs conteneurs Docker
+
+### C12.2 Cible recommandee
+
+- journalisation structuree par niveau
+- correlation des actions critiques (commande/admin)
+- tableau de bord indicateurs techniques et metiers
 
 ---
 
-## 17. Conclusion technique
+## C13. Matrice exigences -> composants -> preuves
 
-Cette documentation couvre:
-- contexte professionnel,
-- architecture,
-- routes/modules,
-- donnees,
-- securite,
-- exploitation,
-- maintenance,
-- points d'amelioration.
+| Exigence | Composant principal | Preuve |
+|---|---|---|
+| navigation catalogue | ProduitsController + views produits | ecran catalogue |
+| gestion panier | PanierController + PanierService | ecrans panier vide/plein |
+| compte utilisateur | ProfileController + auth Laravel | ecran profil |
+| commande client | CommandeController + models transactionnels | routes commande + confirmation |
+| administration | AdminController + AdminMiddleware | acces /admin protege |
+| promotions | ProduitsController (promotions) + modele Promotion | section promos accueil/catalogue |
 
-Elle est adaptee a un dossier de projet BTS SIO SLAM (partie technique complete).
+<div style="page-break-after: always;"></div>
+
+## C14. Procedure de recette jury (simple)
+
+1. Ouvrir l'accueil et verifier affichage promotions
+2. Aller sur produits et effectuer recherche + filtre
+3. Ajouter un produit au panier puis modifier la quantite
+4. Se connecter avec un compte test
+5. Finaliser une commande
+6. Ouvrir profil et modifier les informations
+7. (Compte admin) verifier acces dashboard admin
+
+Criteres de succes:
+
+- aucune erreur bloquante
+- donnees coherentes entre pages
+- droits d'acces respectes selon role
+
+---
+
+## C15. Conclusion generale
+
+L'application web Drive E6 est adaptee a un contexte BTS SIO SLAM:
+
+- architecture MVC lisible et maintenable
+- parcours client complet (catalogue -> panier -> commande)
+- base securitaire correcte pour un projet scolaire
+- socle evolutif vers une exploitation plus industrielle
+
+Priorites d'amelioration pour un contexte production:
+
+- durcir controle d'acces detail commande
+- renforcer tests automatiques critiques
+- industrialiser observabilite et supervision
+- stabiliser politique de versions PHP/infra
+
+---
+
+## Glossaire simplifie (pour jury non dev)
+
+- MVC: facon de separer affichage, logique et donnees
+- Middleware: filtre avant d'entrer dans une action applicative
+- Eloquent: couche ORM de Laravel pour manipuler la base
+- CRUD: creer, lire, modifier, supprimer
+- CI/CD: automatisation build, test et deploiement
+- Smoke test: test rapide de bon fonctionnement global
