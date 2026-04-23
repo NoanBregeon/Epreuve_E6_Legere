@@ -63,4 +63,6 @@ RUN a2enmod rewrite ssl && a2ensite default-ssl
 COPY docker/entrypoint.sh /usr/local/bin/laravel-entrypoint
 RUN chmod +x /usr/local/bin/laravel-entrypoint
 
+EXPOSE 80 443
+
 ENTRYPOINT ["/usr/local/bin/laravel-entrypoint"]
