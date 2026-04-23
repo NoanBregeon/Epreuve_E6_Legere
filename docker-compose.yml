@@ -37,6 +37,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    ports:
+      - "${DB_EXTERNAL_PORT:-3307}:3306"
     networks:
       - laravel_network
 
